@@ -33,6 +33,14 @@ enum SmtcPlayback {
 #[derive(Debug)]
 pub struct Error(WindowsError);
 
+impl std::error::Error for Error {}
+
+impl std::fmt::Debug for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0);
+    }
+}
+
 impl From<WindowsError> for Error {
     fn from(other: WindowsError) -> Error {
         Error(other)
@@ -184,7 +192,8 @@ impl MediaControls {
             let stream = if url.starts_with("file://") {
                 // url is a file, load it manually
                 let path = url.trim_start_matches("file://");
-                let loader = windows::Storage::StorageFile::GetFileFromPathAsync(&HSTRING::from(path))?;
+                let loader =
+                    windows::Storage::StorageFile::GetFileFromPathAsync(&HSTRING::from(path))?;
                 let results = loader.get()?;
                 loader.Close()?;
 
